@@ -3,6 +3,15 @@
 // Polyphonic 8-bit, 20kHz audio sample playback via PWM on digital pin 11.
 // Connect MIDI input (via optocoupler) to RX pin (D0 / RX).
 // Recommended RC low-pass filter on pin 11: 1kΩ resistor and 10nF capacitor.
+//
+// Credits:
+// Original O2 Source Code by Jan Ostman:
+// https://web.archive.org/web/20170107051059/https://janostman.wordpress.com/the-o2-source-code/
+// Additional Info & Hardware: 
+// https://bloghoskins.blogspot.com/2016/11/korg-mini-pops-diy-drum-machine.html
+//
+// License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+// CC0/Public Domain for original Jan Ostman DSP code.
 // -----------------------------------------------------------------------------
 
 #include <avr/interrupt.h>
