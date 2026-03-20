@@ -18,33 +18,6 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 
-
-#ifndef cbi
-#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
-#endif
-#ifndef sbi
-#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
-#endif 
-
-// Standard Arduino Pins
-#define digitalPinToPortReg(P) \
-(((P) >= 0 && (P) <= 7) ? &PORTD : (((P) >= 8 && (P) <= 13) ? &PORTB : &PORTC))
-#define digitalPinToDDRReg(P) \
-(((P) >= 0 && (P) <= 7) ? &DDRD : (((P) >= 8 && (P) <= 13) ? &DDRB : &DDRC))
-#define digitalPinToPINReg(P) \
-(((P) >= 0 && (P) <= 7) ? &PIND : (((P) >= 8 && (P) <= 13) ? &PINB : &PINC))
-#define digitalPinToBit(P) \
-(((P) >= 0 && (P) <= 7) ? (P) : (((P) >= 8 && (P) <= 13) ? (P) - 8 : (P) - 14))
-
-#define digitalReadFast(P) bitRead(*digitalPinToPINReg(P), digitalPinToBit(P))
-                  
-#define digitalWriteFast(P, V) bitWrite(*digitalPinToPortReg(P), digitalPinToBit(P), (V))
-
-const unsigned char PS_128 = (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
-
-
-
-
 //--------- Audio Ringbuffer Parameters ----------
 // Ringbuffer holds the mixed 8-bit audio samples to be played.
 // The main loop writes to the buffer, and the Timer 1 interrupt reads it.
@@ -52,7 +25,6 @@ uint8_t Ringbuffer[256];
 uint8_t RingWrite = 0;
 uint8_t RingRead = 0;
 volatile uint8_t RingCount = 0; // Tracks available samples in the buffer
-volatile uint16_t SFREQ;
 //------------------------------------------------
 
 // Drum sample data (8-bit, ~20kHz PCM audio) stored in PROGMEM (Flash memory)
