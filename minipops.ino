@@ -38,315 +38,6 @@ volatile uint16_t SFREQ;
 //-----------------------------------------
 
 //Patterns GU BG2 BD CL CW MA CY QU
-/*
-16 steps
-------------
-Hard rock
-Disco
-Reggae
-Rock
-Samba
-Rumba
-Cha-Cha
-Swing
-Bossa Nova
-Beguine
-Synthpop
-
-12-steps
----------
-Boogie
-Waltz
-Jazz rock
-Slow rock
-Oxygen
-
- */
-
-//const unsigned char patlen[16] PROGMEM = {15,15,15,11,15,11,11,11,15,15,15,15,15,15,15,11};
-
-const unsigned char patlen[16] PROGMEM = {15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 11, 11, 11, 11, 11};
-
-
-const unsigned char pattern[256] PROGMEM = {
-B00101100,      //Hard rock16
-B00000000,
-B00000100,
-B00000000,
-B00101110,
-B00000000,
-B00100100,
-B00000000,
-B00101100,
-B00000000,
-B00000100,
-B00000000,
-B00101110,
-B00000000,
-B00000100,
-B00000000,
-
-B00100100,      //Disco16
-B00000000,
-B00000100,
-B00010100,
-B00100110,
-B00000000,
-B00000001,
-B00000100,
-B00100100,
-B00000000,
-B00000100,
-B00000100,
-B01100110,
-B00000100,
-B01000001,
-B00000000,
-
-B01000001,      //Reggae16
-B00000100,
-B10000000,
-B00000000,
-B00010110,
-B00000000,
-B10010000,
-B00000000,
-B00100000,
-B00000000,
-B10010000,
-B00000000,
-B00000110,
-B00000000,
-B10000100,
-B00000000,
-
-B00100100,      //Rock16
-B00000000,
-B00000100,
-B00000000,
-B00000110,
-B00000000,
-B00100100,
-B00000000,
-B00100100,
-B00000000,
-B00000100,
-B00000000,
-B00000110,
-B00000000,
-B00000110,
-B00000000,
-  
-B10110101,      //Samba16
-B00010100,
-B10000100,
-B00010100,
-B10110100,
-B00000100,
-B01000100,
-B10010100,
-B00100100,
-B10010100,
-B01000100,
-B10010100,
-B10110101,
-B00000100,
-B10010100,
-B00000100,
-
-B00100110,      //Rumba16
-B00000100,
-B00000001,
-B00110100,
-B00100100,
-B00000001,
-B00010110,
-B00000100,
-B00100100,
-B00000100,
-B00010001,
-B00100100,
-B00110100,
-B00000100,
-B01000001,
-B00000100,
-
-B00100100,      //Cha-Cha16
-B00000000,
-B00000000,
-B00000000,
-B00000110,
-B00000000,
-B01000000,
-B00000000,
-B00100100,
-B00000000,
-B00000010,
-B00000000,
-B01000101,
-B00000000,
-B00000010,
-B00000000,
-
-B00100100,      //Swing16
-B00000000,
-B00000000,
-B00000000,
-B00000100,
-B00000000,
-B00000000,
-B00000100,
-B00000100,
-B00000000,
-B00000000,
-B00000000,
-B00000100,
-B00000000,
-B00000000,
-B00000100,
-
-B00100001,      //Bossanova16
-B00000100,
-B00000100,
-B00100100,
-B00100001,
-B00000100,
-B01000100,
-B00000100,
-B00100001,
-B00000100,
-B00000100,
-B00100000,
-B00100001,
-B01000101,
-B00000100,
-B00000100,
-
-B00100110,      //Beguine16
-B00000000,
-B00000001,
-B00000000,
-B00000100,
-B00000000,
-B01100110,
-B00000000,
-B00100100,
-B00000000,
-B01000100,
-B00000100,
-B00100110,
-B00000000,
-B00000100,
-B00000000,
-
-B10100000,      //Synthpop16
-B00000000,
-B10100010,
-B00000000,
-B00100000,
-B00000000,
-B00100110,
-B00000100,
-B01100000,
-B00000000,
-B01100110,
-B00000100,
-B00100000,
-B00000000,
-B00100010,
-B10001000,
-
-B00100000,    //Boogie12
-B00000000,
-B00100100,
-B00000110,
-B00000000,
-B00100100,
-B00100100,
-B00000000,
-B00100100,
-B00000110,
-B00000000,
-B00100100,
-
-B00000000,
-B00000000,
-B00000000,
-B00000000,
-
-B00100100,      //Waltz12
-B00000000,
-B00000000,
-B00000000,
-B00010010,
-B00000000,
-B00000000,
-B00000000,
-B00010010,
-B00000000,
-B00000000,
-B00000000,
-
-B00000000,
-B00000000,
-B00000000,
-B00000000,
-
-B00100110,      //Jazz rock12
-B00000000,
-B00000100,
-B00000000,
-B00000110,
-B00000000,
-B00000100,
-B00000000,
-B00000110,
-B00000000,
-B01100000,
-B00000000,
-
-B00000000,
-B00000000,
-B00000000,
-B00000000,
-
-B00100100,    //Slow rock12
-B00000000,
-B00000100,
-B00000000,
-B00000100,
-B00000000,
-B00000110,
-B00000000,
-B00000100,
-B00000000,
-B00100100,
-B00000000,
-
-B00000000,
-B00000000,
-B00000000,
-B00000000,
-
-B00100101,    //Oxygen12
-B00001100,
-B00000100,
-B00101110,
-B00000100,
-B00010100,
-B00100101,
-B00000100,
-B00000100,
-B00101100,
-B00000100,
-B11100100,
-B00000000,
-B00000000,
-B00000000,
-B00000000
-
-};
-
 const unsigned char BD[1076] PROGMEM =
 {
   126,122,118,114,111,108,105,103,101,99,98,96,95,94,94,93,93,92,92,92,92,92,92,92,92,93,93,93,94,94,95,96,96,97,97,98,99,100,100,101,102,103,103,104,105,106,107,108,108,109,110,111,112,113,113,114,115,116,117,118,118,119,120,121,122,123,124,124,125,126,127,128,129,129,130,131,132,133,134,134,135,136,137,138,138,139,140,141,141,142,143,144,144,145,146,147,
@@ -629,257 +320,141 @@ const unsigned char QU[7712] PROGMEM =
 };
 
 ISR(TIMER1_COMPA_vect) {
-  
     //-------------------  Ringbuffer handler -------------------------
-    
     if (RingCount) {                            //If entry in FIFO..
       OCR2A = Ringbuffer[(RingRead++)];          //Output LSB of 16-bit DAC
       RingCount--;
     }
-    
     //-----------------------------------------------------------------
-
 }
 
+struct Voice {
+  const unsigned char* sample;
+  uint16_t length;
+  uint16_t position;
+  bool active;
+};
 
+Voice voices[8] = {
+  {BD, 1076, 0, false},
+  {BG2, 1136, 0, false},
+  {CL, 752, 0, false},
+  {CW, 830, 0, false},
+  {CY, 9434, 0, false},
+  {GU, 2816, 0, false},
+  {MA, 568, 0, false},
+  {QU, 7712, 0, false}
+};
+
+void triggerDrum(uint8_t index) {
+  if(index < 8) {
+    voices[index].position = 0;
+    voices[index].active = true;
+  }
+}
+
+// MIDI global state
+uint8_t midiState = 0;
+uint8_t midiNote = 0;
+const uint8_t MIDI_CHANNEL = 10; // Listen to Channel 10
+
+void processMIDI() {
+  while (Serial.available()) {
+    uint8_t byte = Serial.read();
+    
+    if (byte & 0x80) { 
+      // Status byte
+      uint8_t type = byte & 0xF0;
+      uint8_t channel = (byte & 0x0F) + 1;
+      if (type == 0x90 && channel == MIDI_CHANNEL) {
+        midiState = 1; // Expecting note
+      } else {
+        midiState = 0; // Ignore other messages for now
+      }
+    } else {
+      // Data byte
+      if (midiState == 1) {
+        midiNote = byte;
+        midiState = 2; // Expecting velocity
+      } else if (midiState == 2) {
+        uint8_t velocity = byte;
+        if (velocity > 0) {
+          // Note On mapping based on white keys starting from C1 (36)
+          switch(midiNote) {
+            case 36: triggerDrum(0); break; // C1  -> BD
+            case 38: triggerDrum(1); break; // D1  -> BG2
+            case 40: triggerDrum(2); break; // E1  -> CL
+            case 41: triggerDrum(3); break; // F1  -> CW
+            case 43: triggerDrum(4); break; // G1  -> CY
+            case 45: triggerDrum(5); break; // A1  -> GU
+            case 47: triggerDrum(6); break; // B1  -> MA
+            case 48: triggerDrum(7); break; // C2  -> QU
+          }
+        }
+        // Running status: expect next note within the same Note On status
+        midiState = 1;
+      }
+    }
+  }
+}
 
 void setup() {
-  
-    OSCCAL=0xFF;
+    OSCCAL=0xFF; // Set internal oscillator max speed if applicable
     
-    //Drum mute inputs
-    pinMode(2,INPUT_PULLUP);
-    pinMode(3,INPUT_PULLUP);
-    pinMode(4,INPUT_PULLUP);
-    pinMode(5,INPUT_PULLUP);
-    pinMode(6,INPUT_PULLUP);
-    pinMode(7,INPUT_PULLUP);
-    pinMode(8,INPUT_PULLUP);
-    pinMode(9,INPUT_PULLUP);
-
-    pinMode(10,INPUT_PULLUP); //RUN - Stop input
-    pinMode(12,OUTPUT);       //Reset output
-    pinMode(13,OUTPUT);       //Clock output
-
-    pinMode(14,OUTPUT);       //SEQ cnt output
-    pinMode(15,OUTPUT); 
-    pinMode(16,OUTPUT); 
-    pinMode(17,OUTPUT); 
+    // Setup MIDI Baud Rate
+    Serial.begin(31250);
     
-    //8-bit PWM DAC pin
-    pinMode(11,OUTPUT);
+    // 8-bit PWM DAC pin
+    pinMode(11, OUTPUT);
 
-    // Set up Timer 1 to send a sample every interrupt.
+    // Set up Timer 1 to send a sample every interrupt. (Approx 20kHz)
     cli();
-    // Set CTC mode
-    // Have to set OCR1A *after*, otherwise it gets reset to 0!
-    TCCR1B = (TCCR1B & ~_BV(WGM13)) | _BV(WGM12);
+    TCCR1B = (TCCR1B & ~_BV(WGM13)) | _BV(WGM12); // CTC mode
     TCCR1A = TCCR1A & ~(_BV(WGM11) | _BV(WGM10));    
-    // No prescaler
-    TCCR1B = (TCCR1B & ~(_BV(CS12) | _BV(CS11))) | _BV(CS10);
-    // Set the compare register (OCR1A).
-    // OCR1A is a 16-bit register, so we have to do this with
-    // interrupts disabled to be safe.
-    //OCR1A = F_CPU / SAMPLE_RATE; 
-    // Enable interrupt when TCNT1 == OCR1A
+    TCCR1B = (TCCR1B & ~(_BV(CS12) | _BV(CS11))) | _BV(CS10); // No prescaler
     TIMSK1 |= _BV(OCIE1A);   
+    OCR1A = 800; // 16MHz / OCR1A = 20kHz
     sei();
-    OCR1A = 800; //40KHz Samplefreq
 
-// Set up Timer 2 to do pulse width modulation on D11
-
-    // Use internal clock (datasheet p.160)
+    // Set up Timer 2 to do pulse width modulation on D11
     ASSR &= ~(_BV(EXCLK) | _BV(AS2));
-
-    // Set fast PWM mode  (p.157)
     TCCR2A |= _BV(WGM21) | _BV(WGM20);
     TCCR2B &= ~_BV(WGM22);
-
-    // Do non-inverting PWM on pin OC2A (p.155)
-    // On the Arduino this is pin 11.
     TCCR2A = (TCCR2A | _BV(COM2A1)) & ~_BV(COM2A0);
     TCCR2A &= ~(_BV(COM2B1) | _BV(COM2B0));
-    // No prescaler (p.158)
-    TCCR2B = (TCCR2B & ~(_BV(CS12) | _BV(CS11))) | _BV(CS10);
-
-    // Set initial pulse width to the first sample.
-    OCR2A = 128;
-
-    //set timer0 interrupt at 61Hz
-    TCCR0A = 0;// set entire TCCR0A register to 0
-    TCCR0B = 0;// same for TCCR0B
-    TCNT0  = 0;//initialize counter value to 0
-    // set compare match register for 62hz increments
-    OCR0A = 255;// = 61Hz
-    // turn on CTC mode
-    TCCR0A |= (1 << WGM01);
-    // Set CS01 and CS00 bits for prescaler 1024
-    TCCR0B |= (1 << CS02) | (0 << CS01) | (1 << CS00);  //1024 prescaler 
-
-    TIMSK0=0;
-
-
-    // set up the ADC
-    SFREQ=analogRead(0);
-    ADCSRA &= ~PS_128;  // remove bits set by Arduino library
-    // Choose prescaler PS_128.
-    ADCSRA |= PS_128;
-    ADMUX = 64;
-    sbi(ADCSRA, ADSC);
-         
+    TCCR2B = (TCCR2B & ~(_BV(CS12) | _BV(CS11))) | _BV(CS10); // No prescaler
+    OCR2A = 128; // Center voltage
 }
 
-
-
-
 void loop() {  
-
-  uint16_t samplecntBD,samplecntBG2,samplecntCL,samplecntCW,samplecntCY,samplecntGU,samplecntMA,samplecntQU;
-
-  samplecntBD=0;
-  samplecntBG2=0;
-  samplecntCL=0;
-  samplecntCW=0;
-  samplecntCY=0;
-  samplecntGU=0;
-  samplecntMA=0;
-  samplecntQU=0;
-
-  uint16_t samplepntBD,samplepntBG2,samplepntCL,samplepntCW,samplepntCY,samplepntGU,samplepntMA,samplepntQU;
-  
-  int16_t total;
-
-  uint8_t stepcnt=0;
-  uint16_t tempo=3500;
-  uint16_t tempocnt=1;
-  uint8_t MUX=4;
-
-  uint8_t patselect=13;
-  uint8_t patlength=pgm_read_byte_near(patlen + patselect);
-  
   while(1) { 
+    // Quickly handle any incoming MIDI messages
+    processMIDI();
 
-    //------ Add current sample word to ringbuffer FIFO --------------------  
-        
-    if (RingCount<255) {  //if space in ringbuffer
-      total=0;
-      if (samplecntBD) {
-        total+=(pgm_read_byte_near(BD + samplepntBD++)-128);
-        samplecntBD--;
+    // Add current sample word to ringbuffer FIFO
+    if (RingCount < 255) {  
+      int16_t total = 0;
+      
+      for (uint8_t i = 0; i < 8; i++) {
+        if (voices[i].active) {
+          total += (pgm_read_byte_near(voices[i].sample + voices[i].position) - 128);
+          voices[i].position++;
+          
+          if (voices[i].position >= voices[i].length) {
+            voices[i].active = false;
+          }
+        }
       }
-      if (samplecntBG2) {
-        total+=(pgm_read_byte_near(BG2 + samplepntBG2++)-128);
-        samplecntBG2--;
-      }
-      if (samplecntCL) {
-        total+=(pgm_read_byte_near(CL + samplepntCL++)-128);
-        samplecntCL--;
-      }
-      if (samplecntCW) {
-        total+=(pgm_read_byte_near(CW + samplepntCW++)-128);
-        samplecntCW--;
-      }
-      if (samplecntCY) {
-        total+=(pgm_read_byte_near(CY + samplepntCY++)-128);
-        samplecntCY--;
-      }
-      if (samplecntGU) {
-        total+=(pgm_read_byte_near(GU + samplepntGU++)-128);
-        samplecntGU--;
-      }
-       if (samplecntMA) {
-        total+=(pgm_read_byte_near(MA + samplepntMA++)-128);
-        samplecntMA--;
-      }
-      if (samplecntQU) {
-        total+=(pgm_read_byte_near(QU + samplepntQU++)-128);
-        samplecntQU--;
-      }
-      if (total<-127) total=-127;
-      if (total>127) total=127;                           
+      
+      // Limit to 8-bit range
+      if (total < -127) total = -127;
+      if (total > 127) total = 127;                           
+      
       cli();
-      Ringbuffer[RingWrite]=total+128;
+      Ringbuffer[RingWrite] = total + 128;
       RingWrite++;
       RingCount++;
       sei();
- 
-
-//----------------------------------------------------------------------------
-
-//--------- sequencer block ----------------------------------------------
-if (digitalReadFast(10)) {
-  if (!(tempocnt--)) {
-    tempocnt=tempo;
-    digitalWriteFast(13,HIGH); //Clock out Hi
-    uint8_t trig=pgm_read_byte_near(pattern + (patselect<<4) + stepcnt++);
-    PORTC=stepcnt;
-    uint8_t mask=(PIND>>2)|((PINB&3)<<6);
-    trig&=mask;
-    if (stepcnt>patlength) stepcnt=0;
-    if (stepcnt==0) digitalWriteFast(12,HIGH); //Reset out Hi
-    if (stepcnt!=0) digitalWriteFast(12,LOW); //Reset out Lo
-    if (trig & 1) {
-      samplepntQU=0;
-      samplecntQU=7712;
-    }
-    if (trig & 2) {
-      samplepntCY=0;
-      samplecntCY=9434;
-    }
-    if (trig & 4) {
-      samplepntMA=0;
-      samplecntMA=568;
-    }
-    if (trig & 8) {
-      samplepntCW=0;
-      samplecntCW=830;
-    }
-    if (trig & 16) {
-      samplepntCL=0;
-      samplecntCL=752;
-    }
-    if (trig & 32) {
-      samplepntBD=0;
-      samplecntBD=1076;
-    }
-    if (trig & 64) {
-      samplepntBG2=0;
-      samplecntBG2=1136;
-    }
-    if (trig & 128) {
-      samplepntGU=0;
-      samplecntGU=2816;
     }
   }
-  digitalWriteFast(13,LOW); //Clock out Lo
- }
-}
-if (!(digitalReadFast(10))) {
-  digitalWriteFast(13,LOW); //Clock out Lo
-  digitalWriteFast(12,LOW); //Reset out Lo
-  PORTC=0;
-  stepcnt=0;
-  tempocnt=1;
-}
-//------------------------------------------------------------------------
-
-
-
-//--------------- ADC block -------------------------------------
-    if (!(ADCSRA & 64)) {
-
-      uint16_t value=((ADCL+(ADCH<<8))>>3)+1;
-      if (MUX==5) tempo=(value<<4)+1250;  //17633-1250
-      if (MUX==4) patselect=(value-1)>>3;
-      if (MUX==4) patlength=pgm_read_byte_near(patlen + patselect);
-      
-      MUX++;
-      if (MUX==8) MUX=4;
-      ADMUX = 64 | MUX; //Select MUX
-      sbi(ADCSRA, ADSC); //start next conversation
-    }
-//---------------------------------------------------------------
-    
-  }
- 
 }
