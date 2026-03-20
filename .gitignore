@@ -1,0 +1,8 @@
+.pio/
+.agent/
+pio_temp/
+*.o
+*.a
+*.elf
+*.bin
+*.hex
