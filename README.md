@@ -18,6 +18,9 @@ A polyphonic 8-bit, 20kHz MIDI drum machine for Arduino Nano (ATmega328P) and Ar
 - 📄 **`midipops.ino`**: Firmware for **Arduino Nano**. Audio output on Digital Pin 11.
 - 📄 **`midipops_promicro.ino`**: Firmware for **Arduino Pro Micro**. Audio output on Digital Pin 5.
 
+## Hardware Schematic
+![Midipops Hardware Schematic](Schematic_Midipops.png)
+
 ## Getting Started
 
 ### 1. Convert Samples
