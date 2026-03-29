@@ -1,4 +1,5 @@
 import wave
+import aifc
 import sys
 import os
 import struct
@@ -22,9 +23,21 @@ def resample(samples: List[float], old_rate: int, new_rate: int) -> List[float]:
     return new_samples
 
 def wav_to_c(file_path, length_ms=0, fade_ms=0, channel_mode='average'):
-    target_sr = 20000 # 20kHz, corresponding to 800 OCR1A with no prescaler at 16MHz
+    target_sr = 20000 
+    
+    ext = os.path.splitext(file_path)[1].lower()
+    is_aiff = ext in ['.aif', '.aiff']
+    
     try:
-        with wave.open(file_path, 'rb') as wf:
+        # Choose the right module
+        if is_aiff:
+            wf = aifc.open(file_path, 'rb')
+            endian = '>' # AIFF is Big-Endian
+        else:
+            wf = wave.open(file_path, 'rb')
+            endian = '<' # WAV is Little-Endian
+
+        with wf:
             channels = wf.getnchannels()
             width = wf.getsampwidth()
             rate = wf.getframerate()
@@ -33,27 +46,34 @@ def wav_to_c(file_path, length_ms=0, fade_ms=0, channel_mode='average'):
             
             samples: List[float] = []
             if width == 1:
-                # 8-bit WAV is unsigned (0-255)
-                fmt = f"{n_frames * channels}B"
+                # 8-bit WAV is unsigned (B), AIFF is signed (b)
+                fmt = endian + f"{n_frames * channels}" + ("b" if is_aiff else "B")
                 raw = struct.unpack(fmt, frames)
-                samples = [float(s - 128) for s in raw]
+                samples = [float(s) if is_aiff else float(s - 128) for s in raw]
             elif width == 2:
-                # 16-bit WAV is signed (-32768 to 32767)
-                fmt = f"{n_frames * channels}h"
+                # 16-bit is signed
+                fmt = endian + f"{n_frames * channels}h"
                 raw = struct.unpack(fmt, frames)
                 samples = [s / 256.0 for s in raw]
             elif width == 3:
-                # 24-bit WAV is signed little-endian (-8388608 to 8388607)
-                # Parse 3 bytes manually as struct doesn't have 3-byte format
+                # 24-bit is signed
                 for i in range(0, len(frames), 3):
-                    val = frames[i] | (frames[i+1] << 8) | (frames[i+2] << 16)
-                    # Sign extension: 24th bit is sign
+                    # Access bytes individually to avoid slice-related type checker issues
+                    b1, b2, b3 = frames[i], frames[i+1], frames[i+2]
+                    
+                    if is_aiff: # Big endian
+                        val = (b1 << 16) | (b2 << 8) | b3
+                    else: # Little endian
+                        val = b1 | (b2 << 8) | (b3 << 16)
+                        
+                    # Handle signedness (sign extend 24-bit to 32-bit int)
                     if val & 0x800000:
                         val -= 0x1000000
-                    # Scale down to roughly [-128.0, 127.0]
+                        
+                    # Scale to float range
                     samples.append(val / 65536.0)
             else:
-                print(f"Unsupported bit depth: {width*8} bits. Please use 8, 16, or 24-bit WAV.")
+                print(f"Unsupported bit depth: {width*8} bits. Please use 8, 16, or 24-bit.")
                 return
                 
             # Convert to mono if stereo
@@ -95,6 +115,7 @@ def wav_to_c(file_path, length_ms=0, fade_ms=0, channel_mode='average'):
             final_samples = []
             for s in resampled:
                 val = int(round(s + 128))
+                final_samples.append(max(0, min(255, val)))
             # Create a clean C array name
             name = os.path.splitext(os.path.basename(file_path))[0].upper().replace(" ", "_")
             name = ''.join(c for c in name if c.isalnum() or c == '_')
@@ -126,11 +147,12 @@ def wav_to_c(file_path, length_ms=0, fade_ms=0, channel_mode='average'):
         print(f"Error processing {file_path}: {e}")
 
 if __name__ == "__main__":
-    desc = "Convert WAV audio files to C header array files formatted for midipops PROGMEM."
+    desc = "Convert WAV/AIFF audio files to C header array files formatted for midipops PROGMEM."
     epilog = """
 Examples:
   Convert a single file:
     python wav2c.py kick.wav
+    python wav2c.py clap.aif
     
   Convert multiple files, limiting their length to 500ms:
     python wav2c.py snare.wav hat.wav --length 500
@@ -142,7 +164,7 @@ Examples:
     python wav2c.py stereo_drums.wav --channel left
 """
     parser = argparse.ArgumentParser(description=desc, epilog=epilog, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("files", nargs="+", help="Input WAV files")
+    parser.add_argument("files", nargs="+", help="Input WAV/AIFF files")
     parser.add_argument("--length", type=int, default=0, help="Resulting max file length in milliseconds (0 to disable)")
     parser.add_argument("--fade", type=int, default=0, help="Linear fade out length in milliseconds applied to the very end (0 to disable)")
     parser.add_argument("--channel", type=str, choices=['left', 'right', 'average'], default='average', help="Which channel to use for stereo files (default: average)")

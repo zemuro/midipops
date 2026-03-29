@@ -402,6 +402,7 @@ void processMIDI() {
 }
 
 void setup() {
+Conversation mode
     OSCCAL=0xFF; // Set internal oscillator max speed if applicable
     
     // Setup MIDI Baud Rate

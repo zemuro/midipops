@@ -1,20 +1,22 @@
 # Midipops
 
-A polyphonic 8-bit, 20kHz MIDI drum machine for Arduino (Pro Micro / ATmega32U4).
+A polyphonic 8-bit, 20kHz MIDI drum machine for Arduino Nano (ATmega328P) and Arduino Pro Micro (ATmega32U4).
 
 ## Features
 - **Polyphonic Playback**: Mixes multiple 8-bit samples simultaneously with digital headroom management.
-- **20kHz Sample Rate**: Optimized interrupt-driven audio output.
-- **Dual MIDI Interface**: Supports both Native USB MIDI and Hardware DIN MIDI (Channel 10).
-- **Dynamic Kit Loading**: Modular header-based drum kit system.
-- **Flash Optimization**: Automated silence trimming to maximize storage on limited AVR hardware.
+- **20kHz Sample Rate**: Optimized interrupt-driven audio output (via Timer1).
+- **Lo-Fi Velocity Bitcrushing**: Right-shifts samples dynamically based on MIDI velocity for a gritty hardware feel.
+- **Hardware MIDI Implementation**: High-speed optocoupler (6N137) isolated DIN/TRS MIDI input on Channel 10.
+- **Dynamic Kit Loading**: Modular header-based drum kit system using Python build tools.
+- **Dual Hardware Support**: `midipops.ino` for the classic Arduino Nano, and `midipops_promicro.ino` for Native USB MIDI support on the Pro Micro.
 
 ## Project Structure
 - 📁 **`samples/`**: Raw WAV audio files.
-- 📁 **`data/`**: Intermediate C headers for individual samples.
+- 📁 **`data/`**: Intermediate C arrays for individual sampled sounds.
 - 📁 **`tools/`**: Python scripts for sample conversion and bank compilation.
 - 📁 **`include/`**: Finalized standardized drum kit banks (e.g., `kit_b.h`).
-- 📄 **`midipops_promicro.ino`**: Main firmware for Arduino Pro Micro.
+- 📄 **`midipops.ino`**: Firmware for **Arduino Nano**. Audio output on Digital Pin 11.
+- 📄 **`midipops_promicro.ino`**: Firmware for **Arduino Pro Micro**. Audio output on Digital Pin 5.
 
 ## Getting Started
 

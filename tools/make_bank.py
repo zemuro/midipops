@@ -5,8 +5,9 @@ import re
 from typing import List
 
 def create_bank(output_file: str, input_files: List[str], notes: List[int], normalize: float, trim: bool) -> None:
-    bank_contents = ""
+    bank_contents: List[str] = []
     array_names: List[str] = []
+    total_bytes: int = 0
     
     for f in input_files:
         try:
@@ -47,11 +48,12 @@ def create_bank(output_file: str, input_files: List[str], notes: List[int], norm
                     if not out.endswith("  "):
                         out += "\n"
                     out += "};\n"
-                    bank_contents += out + "\n"
+                    bank_contents.append(out + "\n")
+                    total_bytes += len(samples)
                 else:
                     print(f"Warning: Could not parse valid PROGMEM array in {f}")
                     # Fallback to direct inclusion
-                    bank_contents += content + "\n\n"
+                    bank_contents.append(content + "\n\n")
                     match_name = re.search(r'const unsigned char\s+([A-Za-z0-9_]+)\[', content)
                     if match_name:
                         array_names.append(match_name.group(1))
@@ -60,6 +62,16 @@ def create_bank(output_file: str, input_files: List[str], notes: List[int], norm
                         name = base_name.upper().replace(" ", "_")
                         name = ''.join(str(c) for c in name if c.isalnum() or c == '_')
                         array_names.append(name)
+                        
+                        # Fallback parsing to count bytes if possible
+                        match_size = re.search(r'\[(\d+)\]', content)
+                        if match_size:
+                            total_bytes += int(match_size.group(1))
+                        else:
+                            # Heuristic: count commas in the presumably large curly braces section
+                            match_braces = re.search(r'\{([^}]+)\}', content)
+                            if match_braces:
+                                total_bytes += match_braces.group(1).count(',') + 1
         except Exception as e:
             print(f"Error reading {f}: {e}")
             return
@@ -94,13 +106,16 @@ def create_bank(output_file: str, input_files: List[str], notes: List[int], norm
         # Add basic include guard
         guard = os.path.basename(output_file).replace('.', '_').upper()
         f.write(f"#ifndef {guard}\n#define {guard}\n\n#include <avr/pgmspace.h>\n\n")
-        f.write(bank_contents)
+        f.write("".join(bank_contents))
         f.write(metadata)
         f.write(f"\n#endif // {guard}\n")
         
     print(f"Successfully created '{output_file}' with {num_samples} samples.")
     print(f"Arrays included:   {', '.join(array_names)}")
     print(f"MIDI Notes mapped: {', '.join(str(n) for n in padded_notes)}")
+    
+    total_ms = float(total_bytes) / 20.0
+    print(f"Total Size:        {total_bytes} bytes ({total_ms:.1f} ms @ 20kHz)")
 
 if __name__ == "__main__":
     desc = "Create a compiled Midipops drum bank header from individual sample header arrays."

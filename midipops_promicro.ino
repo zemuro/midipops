@@ -2,7 +2,7 @@
 // Midipops - Arduino Pro Micro (ATmega32U4) Port
 // Polyphonic 8-bit, 20kHz audio sample playback via PWM on digital pin 5 (Timer3).
 // Connect MIDI input (via optocoupler) to RX pin (UART RX).
-// Recommended RC low-pass filter on pin 11: 1kΩ resistor and 10nF capacitor.
+// Recommended RC low-pass filter on pin 5: 1kΩ resistor and 10nF capacitor.
 //
 // Credits:
 // Original O2 Source Code by Jan Ostman:
@@ -26,6 +26,7 @@ struct Voice {
   const unsigned char* sample; // Pointer to the sample data in flash memory
   uint16_t length;             // Total number of samples in the array
   uint16_t position;           // Current playback position offset
+  uint8_t velocity;            // MIDI velocity for amplitude scaling
   bool active;                 // True if the sound is currently playing
 };
 
@@ -38,9 +39,20 @@ ISR(TIMER1_COMPA_vect) {
   // Mix all currently active voices directly in the interrupt
   for (uint8_t i = 0; i < MAX_VOICES; i++) {
     if (voices[i].active) {
-      // Read sample byte from PROGMEM, convert to signed (-128 to 127) and cut volume by 50%
+      // Read sample byte from PROGMEM and convert to signed (-128 to 127)
       int8_t s = pgm_read_byte_near(voices[i].sample + voices[i].position) - 128;
-      total += (s / 2);
+      
+      // --- LO-FI VELOCITY SCALING (16 Steps) ---
+      // We reduce bit depth by right-shifting the signal based on velocity bands.
+      // This creates a gritty, stepped amplitude control reminiscent of early digital drums.
+      uint8_t v = voices[i].velocity >> 3; // 16 steps (0-15)
+      int8_t s_scaled = s;
+      if (v < 14) s_scaled >>= 1;
+      if (v < 10) s_scaled >>= 1;
+      if (v < 6) s_scaled >>= 1;
+      if (v < 2) s_scaled >>= 1;
+      
+      total += s_scaled;
       voices[i].position++;
       
       // Stop voice when it reaches the end of its sample array
@@ -58,11 +70,12 @@ ISR(TIMER1_COMPA_vect) {
   OCR3A = total + 128;
 }
 
-void triggerDrum(uint8_t index) {
+void triggerDrum(uint8_t index, uint8_t velocity) {
   if(index < MAX_VOICES) {
     cli(); // Disable interrupts to ensure atomic trigger
     voices[index].position = 0;
     voices[index].active = true;
+    voices[index].velocity = velocity;
     sei(); // Re-enable interrupts
   }
 }
@@ -71,6 +84,17 @@ void triggerDrum(uint8_t index) {
 uint8_t midiState = 0; // 0=Wait for status, 1=Wait for Note, 2=Wait for Velocity
 uint8_t midiNote = 0;  // Holds the received MIDI note number
 const uint8_t MIDI_CHANNEL = 10; // Listen to Channel 10 (Standard MIDI Drum Channel)
+
+// Process a MIDI Note On request
+inline void handleNoteOn(uint8_t note, uint8_t velocity) {
+  if (velocity == 0) return;
+  for (uint8_t i = 0; i < NUM_SAMPLES; i++) {
+    if (note == pgm_read_byte(&kit_notes[i])) {
+      triggerDrum(i, velocity);
+      break;
+    }
+  }
+}
 
 // Reads serial stream and parses basic MIDI Note On messages
 void processMIDI() {
@@ -83,26 +107,19 @@ void processMIDI() {
       uint8_t channel = (rx.byte1 & 0x0F) + 1;
       
       if (type == 0x90 && channel == MIDI_CHANNEL) {
-        uint8_t note = rx.byte2;
-        uint8_t velocity = rx.byte3;
-        
-        if (velocity > 0) {
-          for (uint8_t i = 0; i < NUM_SAMPLES; i++) {
-            if (note == pgm_read_byte(&kit_notes[i])) {
-              triggerDrum(i);
-              Serial.print("USB MIDI Triggered: ");
-              Serial.println(i);
-              break;
-            }
-          }
-        }
+        handleNoteOn(rx.byte2, rx.byte3);
       }
     }
   } while (rx.header != 0);
 
   // --- Check for Hardware DIN MIDI on RX1 ---
   // Pro Micro uses Serial1 for the hardware RX/TX pins.
-  // (Serial is used for the Native USB connection)
+  if (Serial1.available()) {
+    TXLED1; // Flash onboard LED to show activity
+  } else {
+    TXLED0;
+  }
+
   while (Serial1.available()) {
     uint8_t byte = Serial1.read();
     
@@ -121,17 +138,7 @@ void processMIDI() {
         midiNote = byte;
         midiState = 2; // Expecting velocity
       } else if (midiState == 2) {
-        uint8_t velocity = byte;
-        if (velocity > 0) {
-          for (uint8_t i = 0; i < NUM_SAMPLES; i++) {
-            if (midiNote == pgm_read_byte(&kit_notes[i])) {
-              triggerDrum(i);
-              Serial.print("Hardware MIDI Triggered: ");
-              Serial.println(i);
-              break;
-            }
-          }
-        }
+        handleNoteOn(midiNote, byte);
         // Running status: expect next note within the same Note On status
         midiState = 1;
       }
@@ -144,14 +151,13 @@ void setup() {
     for (uint8_t i = 0; i < MAX_VOICES; i++) {
       voices[i].sample = (const unsigned char*)pgm_read_word(&kit_ptrs[i]);
       voices[i].length = pgm_read_word(&kit_lens[i]);
+      voices[i].velocity = 0;
       voices[i].position = 0;
       voices[i].active = false;
     }
 
     // Setup MIDI Baud Rate on the hardware RX pin
     Serial1.begin(31250);
-    // Setup USB Serial for generic debugging
-    Serial.begin(115200);
     
     // 8-bit PWM DAC pin. On ATmega32U4, Timer 3 Channel A is on Pin 5
     pinMode(5, OUTPUT);

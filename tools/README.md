@@ -3,7 +3,7 @@
 This directory contains Python 3 scripts for converting and managing audio samples.
 
 ## `wav2c.py`
-Converts WAV files into C arrays formatted for `PROGMEM` storage.
+Converts WAV and AIFF files into C arrays formatted for `PROGMEM` storage.
 
 **Common Usage:**
 ```bash
