@@ -1,51 +1,51 @@
 # Midipops
 
-A polyphonic 8-bit, 20kHz MIDI drum machine for Arduino Nano (ATmega328P) and Arduino Pro Micro (ATmega32U4).
+A polyphonic 8-bit, 20kHz MIDI drum machine for **Arduino Nano** (ATmega328P) and **Arduino Pro Micro** (ATmega32U4).
+
+This version is a unified, highly optimized port designed for **PlatformIO**. It features a modern hardware abstraction layer and aggressive space optimizations to maximize drum kit capacity.
 
 ## Features
-- **Polyphonic Playback**: Mixes multiple 8-bit samples simultaneously with digital headroom management.
-- **20kHz Sample Rate**: Optimized interrupt-driven audio output (via Timer1).
-- **Lo-Fi Velocity Bitcrushing**: Right-shifts samples dynamically based on MIDI velocity for a gritty hardware feel.
-- **Hardware MIDI Implementation**: High-speed optocoupler (6N137) isolated DIN/TRS MIDI input on Channel 10.
-- **Dynamic Kit Loading**: Modular header-based drum kit system using Python build tools.
-- **Dual Hardware Support**: `midipops.ino` for the classic Arduino Nano, and `midipops_promicro.ino` for Native USB MIDI support on the Pro Micro.
+- **Unified Codebase**: Single `main.cpp` supports both Nano and Pro Micro via the `config.h` abstraction.
+- **Polyphonic 20kHz Playback**: Mixes multiple 8-bit samples simultaneously with digital headroom management.
+- **Lean GCC Build**: Leverages `-flto` and `--relax` to minimize binary footprint (only ~14KB for the core engine).
+- **Dual MIDI Support**: 
+    - **Nano**: Standard DIN MIDI on hardware Serial (RX pin).
+    - **Pro Micro**: Native USB MIDI + Hardware DIN MIDI (RX1 pin).
 
 ## Project Structure
-- 📁 **`samples/`**: Raw WAV audio files.
-- 📁 **`data/`**: Intermediate C arrays for individual sampled sounds.
-- 📁 **`tools/`**: Python scripts for sample conversion and bank compilation.
-- 📁 **`include/`**: Finalized standardized drum kit banks (e.g., `kit_b.h`).
-- 📄 **`midipops.ino`**: Firmware for **Arduino Nano**. Audio output on Digital Pin 11.
-- 📄 **`midipops_promicro.ino`**: Firmware for **Arduino Pro Micro**. Audio output on Digital Pin 5.
-
-## Hardware Schematic
-![Midipops Hardware Schematic](Schematic_Midipops.png)
+- 📁 **`src/`**: Unified source code (`main.cpp`).
+- 📁 **`include/`**: Hardware configuration (`config.h`) and drum kit headers.
+- 📁 **`tools/`**: Python scripts for WAV-to-C conversion and bank compilation.
+- 📁 **`samples/`**: Raw WAV audio source files.
+- 📄 **`platformio.ini`**: Multi-environment build configuration.
 
 ## Getting Started
 
-### 1. Convert Samples
-Convert WAV samples to C arrays using `wav2c.py`:
+### 1. Configure Hardware
+Open [include/config.h](include/config.h) and ensure the correct board is selected (Nano is default). You can also customize audio and LED pins here.
+
+### 2. Prepare Drum Kits
+Use the Python tools to convert your own WAVs or use the provided kits:
+- **Convert**: `python tools/wav2c.py samples/kick.wav`
+- **Compile Bank**: `python tools/make_bank.py -o include/my_kit.h data/kick.h data/snare.h`
+
+### 3. Build & Flash
+Use the PlatformIO CLI or IDE to flash your board:
+
+**For Arduino Nano:**
 ```bash
-python tools/wav2c.py samples/kick.wav --length 200
+pio run -e nanoatmega328 -t upload
 ```
 
-### 2. Compile a Bank
-Merge individual samples into a standardized bank using `make_bank.py`:
+**For Arduino Pro Micro:**
 ```bash
-python tools/make_bank.py -o include/kit_b.h -f data/kick_data.h data/snare_data.h --normalize 0.4 --trim
-```
-
-### 3. Flash Firmware
-Ensure the desired bank is included in `midipops_promicro.ino`, then use PlatformIO to upload:
-```bash
-pio run -t upload
+pio run -e sparkfun_promicro16 -t upload
 ```
 
 ## Credits & Origins
-This project builds upon the original "O2" (Minipops 7 rhythm box) source code created by DIY Synthesizer pioneer Jan Ostman.
-- **Original O2 Source Code**: [Web Archive Link to Jan Ostman's blog](https://web.archive.org/web/20170107051059/https://janostman.wordpress.com/the-o2-source-code/)
-- **Korg Mini-Pops DIY Drum Machine Details**: [Blog Hoskins](https://bloghoskins.blogspot.com/2016/11/korg-mini-pops-diy-drum-machine.html)
+Built upon the original "O2" (Minipops 7) source code by Jan Ostman. 
+- Original DSP Logic: Jan Ostman (CC0).
+- MIDI Implementation & Porting: Antigravity AI.
 
 ## License
-The original public domain dedication by Jan Ostman is preserved (CC0 1.0 Universal). 
-The MIDI implementations and modifications in this repository are licensed under the **Creative Commons Attribution 4.0 International (CC BY 4.0)** license.
+Licensed under the **Creative Commons Attribution 4.0 International (CC BY 4.0)**.
